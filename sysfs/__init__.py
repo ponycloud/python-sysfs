@@ -32,7 +32,6 @@ class Node(object):
         return '<sysfs.Node "%s">' % self._path_
 
     def __setattr__(self, name, val):
-    #def __setattribute__(self, name, val):
         if name.startswith('_'):
             #return object.__setattribute__(self, name, val)
             return object.__setattr__(self, name, val)
