@@ -31,9 +31,11 @@ class Node(object):
     def __repr__(self):
         return '<sysfs.Node "%s">' % self._path_
 
-    def __setattribute__(self, name, val):
+    def __setattr__(self, name, val):
+    #def __setattribute__(self, name, val):
         if name.startswith('_'):
-            return object.__setattribute__(self, name, val)
+            #return object.__setattribute__(self, name, val)
+            return object.__setattr__(self, name, val)
 
         path = realpath(join(self._path_, name))
         if isfile(path):
@@ -57,7 +59,7 @@ class Node(object):
         elif isdir(path):
             return Node(path)
 
-    def __setitem__(sefl, name, val):
+    def __setitem__(self, name, val):
         return setattr(self, name, val)
 
     def __getitem__(self, name):
