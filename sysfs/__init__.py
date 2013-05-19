@@ -33,7 +33,6 @@ class Node(object):
 
     def __setattr__(self, name, val):
         if name.startswith('_'):
-            #return object.__setattribute__(self, name, val)
             return object.__setattr__(self, name, val)
 
         path = realpath(join(self._path_, name))
