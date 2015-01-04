@@ -10,13 +10,13 @@ Usage::
     from sysfs import sys
 
     for bdev in sys.block:
-        print bdev, str(sys.block[bdev].size / 1024 / 1024) + 'M'
+        print bdev, str(bdev.size / 1024 / 1024) + 'M'
 """
 
 __all__ = ['sys', 'Node']
 
 from os import listdir
-from os.path import isdir, isfile, join, realpath
+from os.path import isdir, isfile, join, realpath, basename
 
 class Node(object):
     __slots__ = ['_path_', '__dict__']
@@ -30,6 +30,9 @@ class Node(object):
 
     def __repr__(self):
         return '<sysfs.Node "%s">' % self._path_
+
+    def __str__(self):
+        return basename(self._path_)
 
     def __setattr__(self, name, val):
         if name.startswith('_'):
@@ -64,7 +67,7 @@ class Node(object):
         return getattr(self, name)
 
     def __iter__(self):
-        return iter(listdir(self._path_))
+        return iter(getattr(self, name) for name in listdir(self._path_))
 
 
 sys = Node()
