@@ -10,7 +10,7 @@ Usage::
     from sysfs import sys
 
     for bdev in sys.block:
-        print bdev, str(bdev.size / 1024 / 1024) + 'M'
+        print bdev, str(int(bdev.size) / 1024 / 1024) + 'M'
 """
 
 __all__ = ['sys', 'Node']
@@ -52,11 +52,7 @@ class Node(object):
         path = realpath(join(self._path_, name))
         if isfile(path):
             with open(path, 'r') as fp:
-                data = fp.read().strip()
-            try:
-                return int(data)
-            except ValueError:
-                return data
+                return fp.read().strip()
         elif isdir(path):
             return Node(path)
 
