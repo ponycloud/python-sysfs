@@ -41,7 +41,7 @@ class Node(object):
         path = realpath(join(self._path_, name))
         if isfile(path):
             with open(path, 'w') as fp:
-                fp.write(str(val))
+                fp.write(val)
         else:
             raise RuntimeError('Cannot write to non-files.')
 
