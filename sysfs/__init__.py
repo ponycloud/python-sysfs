@@ -10,13 +10,13 @@ Usage::
     from sysfs import sys
 
     for bdev in sys.block:
-        print bdev, str(sys.block[bdev].size / 1024 / 1024) + 'M'
+        print bdev, str(int(bdev.size) / 1024 / 1024) + 'M'
 """
 
 __all__ = ['sys', 'Node']
 
 from os import listdir
-from os.path import isdir, isfile, join, realpath
+from os.path import isdir, isfile, join, realpath, basename
 
 class Node(object):
     __slots__ = ['_path_', '__dict__']
@@ -31,6 +31,9 @@ class Node(object):
     def __repr__(self):
         return '<sysfs.Node "%s">' % self._path_
 
+    def __str__(self):
+        return basename(self._path_)
+
     def __setattr__(self, name, val):
         if name.startswith('_'):
             return object.__setattr__(self, name, val)
@@ -38,7 +41,7 @@ class Node(object):
         path = realpath(join(self._path_, name))
         if isfile(path):
             with open(path, 'w') as fp:
-                fp.write(str(val))
+                fp.write(val)
         else:
             raise RuntimeError('Cannot write to non-files.')
 
@@ -49,11 +52,7 @@ class Node(object):
         path = realpath(join(self._path_, name))
         if isfile(path):
             with open(path, 'r') as fp:
-                data = fp.read().strip()
-            try:
-                return int(data)
-            except ValueError:
-                return data
+                return fp.read().strip()
         elif isdir(path):
             return Node(path)
 
@@ -64,7 +63,7 @@ class Node(object):
         return getattr(self, name)
 
     def __iter__(self):
-        return iter(listdir(self._path_))
+        return iter(getattr(self, name) for name in listdir(self._path_))
 
 
 sys = Node()
