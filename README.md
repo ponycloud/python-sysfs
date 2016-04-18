@@ -1,7 +1,5 @@
 # Simplistic Python SysFS interface.
 
-Shamelessly stolen from <http://stackoverflow.com/questions/4648792/>.
-
 ## Usage
 
     from sysfs import sys
