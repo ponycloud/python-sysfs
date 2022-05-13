@@ -14,33 +14,33 @@ Usage::
 """
 
 __all__ = ['sys', 'Node']
+__license__ = "MIT"
 
-from os import listdir
-from os.path import isdir, isfile, join, realpath, basename
+from pathlib import Path, PosixPath
 
 class Node(object):
     __slots__ = ['_path_', '__dict__']
 
-    def __init__(self, path='/sys'):
-        self._path_ = realpath(path)
-        if not self._path_.startswith('/sys/') and not '/sys' == self._path_:
+    def __init__(self, path: str='/sys'):
+        self._path_ = Path(path).resolve()
+        if not str(self._path_).startswith('/sys') and Path(self._path_).is_dir():
             raise RuntimeError('Using this on non-sysfs files is dangerous!')
 
-        self.__dict__.update(dict.fromkeys(listdir(self._path_)))
+        self.__dict__.update(dict.fromkeys([_ for _ in self._path_.iterdir()]))
 
     def __repr__(self):
         return '<sysfs.Node "%s">' % self._path_
 
     def __str__(self):
-        return basename(self._path_)
+        return self._path_.name
 
-    def __setattr__(self, name, val):
+    def __setattr__(self, name: str, val):
         if name.startswith('_'):
             return object.__setattr__(self, name, val)
 
-        path = realpath(join(self._path_, name))
-        if isfile(path):
-            with open(path, 'w') as fp:
+        path = self._path_ / name
+        if path.is_file():
+            with path.open('w') as fp:
                 fp.write(val)
         else:
             raise RuntimeError('Cannot write to non-files.')
@@ -49,11 +49,11 @@ class Node(object):
         if name.startswith('_'):
             return object.__getattribute__(self, name)
 
-        path = realpath(join(self._path_, name))
-        if isfile(path):
-            with open(path, 'r') as fp:
+        path = self._path_ / name
+        if path.is_file():
+            with path.open('r') as fp:
                 return fp.read().strip()
-        elif isdir(path):
+        elif path.is_dir():
             return Node(path)
 
     def __setitem__(self, name, val):
@@ -63,7 +63,7 @@ class Node(object):
         return getattr(self, name)
 
     def __iter__(self):
-        return iter(getattr(self, name) for name in listdir(self._path_))
+        return iter(getattr(self, name) for name in self._path_.iterdir())
 
 
 sys = Node()
